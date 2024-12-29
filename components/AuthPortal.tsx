@@ -3,11 +3,38 @@
 import { useState, useEffect } from 'react';
 import { Github, Moon, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 export default function AuthPortal() {
   const [darkMode, setDarkMode] = useState<boolean>(
     () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
   );
+  
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if the URL contains a "code" query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+
+    if (code) {
+      // Send the "code" to your API to fetch the access token
+      fetch(`/api/auth/callback?code=${code}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.access_token) {
+            // On success, redirect to the dashboard
+            router.push('/dashboard');
+          } else {
+            // Handle error
+            console.error("Access token not found", data.error);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching access token", error);
+        });
+    }
+  }, [router]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -41,13 +68,16 @@ export default function AuthPortal() {
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             Create, manage, and save your notes directly to your GitHub account with Git_Notes.
           </p>
-          <button
-            onClick={() => console.log('github')}
-            className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center mb-4 transition duration-300"
+          <a href={`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`}>
+          {/* <button
+            
+            className="w-full bg-gray-900 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center mb-4 transition duration-300"
           >
             <Github className="mr-2" size={20} />
             Log in with GitHub
-          </button>
+          </button> */}
+          </a>
+          <a href={`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`}>
           <button
             onClick={() => console.log('github')}
             className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center transition duration-300"
@@ -55,6 +85,7 @@ export default function AuthPortal() {
             <Github className="mr-2" size={20} />
             Sign up with GitHub
           </button>
+          </a>
         </div>
         <div className="bg-gray-100 dark:bg-gray-700 px-8 py-4">
           <p className="text-xs text-gray-500 dark:text-gray-400">
