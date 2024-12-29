@@ -1,5 +1,5 @@
 'use client'
-import { File } from "lucide-react";
+import { File, Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -22,7 +22,9 @@ const FileList = () => {
     const getFileData = async (id: string) => {
         const res = await axios.get(`/api/repo/${id}`)
         if(res) {
-            await setFileList(res.data)
+            console.log(res.data)
+         setFileList(res.data)
+         console.log(fileList)
         }
     }
 
@@ -39,21 +41,27 @@ const FileList = () => {
         <ul className="divide-y divide-gray-200">
         {
             fileList != null ? (
-                fileList.map((file: file_t) => (
-                    <li key={file.id} className="px-4 py-4 sm:px-6">
-                      <div className="flex items-center">
-                        <File className="flex-shrink-0 h-5 w-5 text-gray-400" aria-hidden="true" />
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                        </div>
-                      </div>
-                      <button className="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded inline-flex items-center">
-                        View File
-                      </button>
-                    </li>
-                  ))
+                fileList.length > 0 ? (
+                    fileList.map((file: file_t) => (
+                        <li key={file.id} className="px-4 py-4 sm:px-6">
+                          <div className="flex items-center">
+                            <File className="flex-shrink-0 h-5 w-5 text-gray-400" aria-hidden="true" />
+                            <div className="ml-3">
+                              <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
+                            </div>
+                          </div>
+                          <button className="mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded inline-flex items-center">
+                            View File
+                          </button>
+                        </li>
+                      ))
+                ): (
+                    <p className="text-md text-gray-600 px-10 py-3 text-center">No files available</p>
+                )
             ) : (
-                <p className="text-md text-gray-600 px-10 py-3 text-center">No files available</p>
+                <div className="flex items-center justify-center">
+                    <Loader2 size={30} className="text-gn-notes"/>
+                </div>
             )
         }
         </ul>

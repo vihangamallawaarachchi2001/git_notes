@@ -29,7 +29,7 @@ const Profile = () => {
     try {
       const res = await axios.get(`/api/profile/${userId}`);
       if (res.data) {
-        console.log("API response:", res.data); // Debug the response
+        console.log("API response:", res.data); 
         setProfile(res.data);
       }
     } catch (error) {
