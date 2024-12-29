@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react';
 import { Github, Moon, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 export default function AuthPortal() {
-  const [darkMode, setDarkMode] = useState<boolean>(
-    () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-  );
+  const [darkMode, setDarkMode] = useState<boolean>(false);
   
   const router = useRouter();
 
@@ -19,8 +18,8 @@ export default function AuthPortal() {
 
     if (code) {
       // Send the "code" to your API to fetch the access token
-      fetch(`/api/auth/callback?code=${code}`)
-        .then((response) => response.json())
+      axios.get(`/api/auth/callback?code=${code}`)
+        .then((response) => response.data())
         .then((data) => {
           if (data.access_token) {
             // On success, redirect to the dashboard
@@ -36,6 +35,14 @@ export default function AuthPortal() {
     }
   }, [router]);
 
+    // Check for dark mode after component mounts (client-side)
+    useEffect(() => {
+      if (typeof window !== 'undefined' && window.matchMedia) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setDarkMode(prefersDark);
+      }
+    }, []);
+
   useEffect(() => {
     const root = document.documentElement;
     if (darkMode) {
@@ -44,6 +51,10 @@ export default function AuthPortal() {
       root.classList.remove('dark');
     }
   }, [darkMode]);
+
+  const scope = 'repo user user:email'
+
+  const githubUrl = `https://github.com/login/oauth/authorize?scope=${scope}&client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`;
 
   return (
     <div className="w-full max-w-md">
@@ -68,16 +79,17 @@ export default function AuthPortal() {
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             Create, manage, and save your notes directly to your GitHub account with Git_Notes.
           </p>
-          <a href={`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`}>
-          {/* <button
+          {/* <a href={`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}&scope=${process.env.GITHUB_SCOPE}`}>
+          <button
             
             className="w-full bg-gray-900 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center mb-4 transition duration-300"
           >
             <Github className="mr-2" size={20} />
             Log in with GitHub
-          </button> */}
-          </a>
-          <a href={`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}`}>
+          </button>
+          </a> */}
+
+          <a href={githubUrl}>
           <button
             onClick={() => console.log('github')}
             className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center transition duration-300"
