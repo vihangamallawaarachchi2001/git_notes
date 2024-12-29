@@ -144,8 +144,10 @@ export async function GET(req: NextRequest) {
       }
     });
 
+    
+
     // Redirect the user to the dashboard
-    return NextResponse.redirect(new URL('/dashboard', req.url)); // This will redirect to /dashboard
+    return NextResponse.redirect(new URL(`/dashboard?id=${user.id}`, req.url)); // This will redirect to /dashboard
 
   } catch (error) {
     if (error instanceof Error) {
